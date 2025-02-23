@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Website</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #fff;
+            --text-color: #333;
+            --accent-color: #FFC107;
+            --background-color: #f8f8f8;
+            --cart-color: #333;
+            --transition: 0.3s ease;
+        }
+
+        .dark-theme {
+            --primary-color: #2196F3;
+            --secondary-color: #333;
+            --text-color: #fff;
+            --accent-color: #FFC107;
+            --background-color: #222;
+            --cart-color: #fff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin: 0 1rem;
+        }
+
+        nav ul li a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .theme-toggle-button {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: var(--accent-color);
+            color: var(--cart-color);
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .hero {
+            background-color: var(--accent-color);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .product-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .product {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            text-align: center;
+            background-color: var(--secondary-color);
+            transition: transform var(--transition);
+        }
+
+        .product:hover {
+            transform: scale(1.05);
+        }
+
+        .product img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .add-to-cart {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color var(--transition);
+            margin-top: 0.5rem;
+        }
+
+        .add-to-cart:hover {
+            background-color: var(--accent-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+        .cart-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--secondary-color);
+            border: 1px solid #ddd;
+            padding: 1rem;
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .cart-dropdown.active {
+            display: block;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-remove {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 0.2rem 0.5rem;
+            cursor: pointer;
+        }
+        .cart-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Store</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Shop</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="theme-toggle-button" aria-label="Toggle Theme">☀️</button>
+        <div class="cart-icon" onclick="toggleCartDropdown()">
+            🛒<span class="cart-count">0</span>
+            <div class="cart-dropdown">
+                <!-- Cart items will be added here -->
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Special Offers!</h2>
+            <p>Check out our latest deals.</p>
+        </section>
+
+        <section class="product-gallery">
+            <!-- Products will be added here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 My Store. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const products = [
+            { id: 1, name: "Product 1", price: 10, image: "https://via.placeholder.com/250" },
+            { id: 2, name: "Product 2", price: 20, image: "https://via.placeholder.com/250" },
+            { id: 3, name: "Product 3", price: 30, image: "https://via.placeholder.com/250" },
+            { id: 4, name: "Product 4", price: 40, image: "https://via.placeholder.com/250" }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function renderProducts() {
+            const productGallery = document.querySelector('.product-gallery');
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.classList.add('product');
+                productElement.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>$${product.price}</p>
+                    <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+                `;
+                productGallery.appendChild(productElement);
+            });
+
+            attachAddToCartListeners();
+        }
+
+        function attachAddToCartListeners() {
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', addToCart);
+            });
+        }
+
+        function addToCart(event) {
+            const productId = parseInt(event.target.dataset.id);
+            const product = products.find(p => p.id === productId);
+
+            if (product) {
+                const existingCartItem = cart.find(item => item.id === productId);
+                if (existingCartItem) {
+                    existingCartItem.quantity++;
+                } else {
+                    cart.push({ ...product, quantity: 1 });
+                }
+                updateCart();
+            }
+        }
+
+        function updateCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartIcon();
+            renderCartDropdown();
+        }
+
+        function updateCartIcon() {
+            const cartCount = document.querySelector('.cart-count');
+            const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalQuantity;
+        }
+        function renderCartDropdown() {
+            const cartDropdown = document.querySelector('.cart-dropdown');
+            cartDropdown.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartDropdown.innerHTML = '<p>Your cart is empty.</p>';
+                return;
+            }
+
+            cart.forEach(item => {
+                const cartItemElement = document.createElement('div');
+                cartItemElement.classList.add('cart-item');
+                cartItemElement.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>$${item.price * item.quantity}</span>
+                    <button class="cart-item-remove" data-id="${item.id}">X</button>
+                `;
+                cartDropdown.appendChild(cartItemElement);
+            });
+
+            document.querySelectorAll('.cart-item-remove').forEach(button => {
+                button.addEventListener('click', removeFromCart);
+            });
+        }
+
+        function removeFromCart(event) {
+            const productId = parseInt(event.target.dataset.id);
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+        }
+
+        function toggleCartDropdown() {
+            const cartDropdown = document.querySelector('.cart-dropdown');
+            cartDropdown.classList.toggle('active');
+        }
+
+        document.querySelector('.theme-toggle-button').addEventListener('click', function() {
+            const body = document.body;
+            body.classList.toggle('dark-theme');
+            this.textContent = body.classList.contains('dark-theme') ? '🌙' : '☀️';
+            localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
+        });
+
+        // Check for saved theme preference on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.querySelector('.theme-toggle-button').textContent = '🌙';
+            }
+            renderProducts();
+            updateCartIcon();
+            renderCartDropdown();
+        });
+    </script>
+</body>
+</html>
